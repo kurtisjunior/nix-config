@@ -1,31 +1,33 @@
 { pkgs, lib, ... }:
+
 {
-  home.username = "kurtis";
+  # ── Identity ────────────────────────────────────────────────────────────────
+  home.username    = "kurtis";
   home.homeDirectory = "/Users/kurtis";
-  home.stateVersion = "24.11";   # leave this; it pins compatibility
+  home.stateVersion  = "24.11"; # pins HM compatibility — do not change
   programs.home-manager.enable = true;
 
-  # ── Your global toolbelt: add/remove tools here ──
+  # ── Packages ─────────────────────────────────────────────────────────────────
+  # CLI tools managed by nix. To apply changes: hms
   home.packages = with pkgs; [
     git
+    gh
     jq
     eza
-    gh
     zsh-powerlevel10k
   ];
 
-  #*** everyday loop, edit home.nix then run: hms
-
-  # We declare "~/.local/bin should be on my PATH" HERE, up front.
+  # ── Environment ──────────────────────────────────────────────────────────────
   home.sessionPath = [ "$HOME/.local/bin" ];
 
-  # Home Manager owns your shell (this creates ~/.zshrc for you).
+  # ── Shell (zsh) ──────────────────────────────────────────────────────────────
   programs.zsh = {
-    enable = true;
+    enable        = true;
     defaultKeymap = "viins";
 
     initContent = lib.mkMerge [
-      # p10k instant prompt MUST be at the very top
+
+      # p10k instant prompt must source before anything else
       (lib.mkBefore ''
         if [[ -r "''${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-''${(%):-%n}.zsh" ]]; then
           source "''${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-''${(%):-%n}.zsh"
@@ -33,20 +35,22 @@
       '')
 
       ''
+        # ── Prompt ────────────────────────────────────────────────────────────
         source ${pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k/powerlevel10k.zsh-theme
         [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-        bindkey '^R' history-incremental-search-backward
-        bindkey '^F' history-incremental-search-forward
-        setopt auto_cd
-
+        # ── Vi mode ───────────────────────────────────────────────────────────
         export KEYTIMEOUT=1
 
-        # Vi mode cursor: block in normal, beam in insert
+        bindkey '^R' history-incremental-search-backward
+        bindkey '^F' history-incremental-search-forward
+
+        # Switch cursor: block in normal mode, beam in insert mode
         function zle-keymap-select {
           if [[ ''${KEYMAP} == vicmd ]] || [[ $1 = 'block' ]]; then
             echo -ne '\e[1 q'
-          elif [[ ''${KEYMAP} == main ]] || [[ ''${KEYMAP} == viins ]] || [[ ''${KEYMAP} = "" ]] || [[ $1 = 'beam' ]]; then
+          elif [[ ''${KEYMAP} == main ]] || [[ ''${KEYMAP} == viins ]] || \
+               [[ ''${KEYMAP} = "" ]]   || [[ $1 = 'beam' ]]; then
             echo -ne '\e[5 q'
           fi
         }
@@ -60,13 +64,17 @@
         echo -ne '\e[5 q'
         preexec() { echo -ne '\e[5 q'; }
 
-        # Tab completion
+        # ── Completion ────────────────────────────────────────────────────────
         autoload -U compinit
         zstyle ':completion:*' menu select
         zmodload zsh/complist
         compinit
-        _comp_options+=(globdots)
+        _comp_options+=(globdots) # include hidden files
 
+        # ── Options ───────────────────────────────────────────────────────────
+        setopt auto_cd            # type a dir name to cd into it
+
+        # ── Functions ─────────────────────────────────────────────────────────
         function git_current_branch() {
           git rev-parse --abbrev-ref HEAD 2>/dev/null
         }
@@ -74,6 +82,7 @@
     ];
 
     shellAliases = {
+      # nix
       hms = "home-manager switch --flake ~/nix-config#kurtis";
 
       # shell
@@ -93,6 +102,7 @@
     };
   };
 
+  # ── Vim ──────────────────────────────────────────────────────────────────────
   programs.vim = {
     enable = true;
     extraConfig = ''
@@ -100,9 +110,10 @@
     '';
   };
 
-  # direnv powers the per-project layer in Step 5.
+  # ── Direnv ───────────────────────────────────────────────────────────────────
+  # Per-project env vars via .envrc files; nix-direnv caches nix shells
   programs.direnv = {
-    enable = true;
+    enable            = true;
     nix-direnv.enable = true;
   };
 }
