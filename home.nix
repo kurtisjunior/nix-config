@@ -10,10 +10,10 @@
     git
     jq
     eza
+    gh 
   ];
 
-#*** everyday loop, edit home.nix then run: 
-#*** home-manager switch --flake ~/.config/home-manager#kurtis
+#*** everyday loop, edit home.nix then run: hms
 
   # We declare "~/.local/bin should be on my PATH" HERE, up front.
   home.sessionPath = [ "$HOME/.local/bin" ];
@@ -23,7 +23,8 @@
   enable = true;                # you already have this
   shellAliases = {
     ls = "eza --icons=always -a --group-directories-first";
-    ggpush = "git push";            
+    ggpush = "git push";
+    hms = "home-manager switch --flake ~/nix-config#kurtis";
   };
 };
 
