@@ -18,26 +18,32 @@
 
   # ── Git ──────────────────────────────────────────────────────────────────────
   programs.git = {
-    enable    = true;
-    userName  = "kurtis";
-    userEmail = "kurtisangell@gmail.com";
-    includes  = [
+    enable = true;
+    settings.user.name  = "kurtis";
+    settings.user.email = "kurtisangell@gmail.com";
+    includes = [
       { condition = "gitdir:~/tinker/"; path = "~/tinker/.gitconfig"; }
       { condition = "gitdir:~/tw/";     path = "~/tw/.gitconfig"; }
     ];
   };
 
-  home.file."tinker/.gitconfig".text = ''
-    [user]
-      name  = kurtis
-      email = kurtisangell@gmail.com
-  '';
+  home.file."tinker/.gitconfig" = {
+    force = true;
+    text = ''
+      [user]
+        name  = kurtis
+        email = kurtisangell@gmail.com
+    '';
+  };
 
-  home.file."tw/.gitconfig".text = ''
-    [user]
-      name  = kurtis
-      email = kurtis.angell@thoughtworks.com
-  '';
+  home.file."tw/.gitconfig" = {
+    force = true;
+    text = ''
+      [user]
+        name  = kurtis
+        email = kurtis.angell@thoughtworks.com
+    '';
+  };
 
   # ── Environment ──────────────────────────────────────────────────────────────
   home.sessionPath = [ "$HOME/.local/bin" ];
