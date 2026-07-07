@@ -10,12 +10,34 @@
   # ── Packages ─────────────────────────────────────────────────────────────────
   # CLI tools managed by nix. To apply changes: hms
   home.packages = with pkgs; [
-    git
     gh
     jq
     eza
     zsh-powerlevel10k
   ];
+
+  # ── Git ──────────────────────────────────────────────────────────────────────
+  programs.git = {
+    enable    = true;
+    userName  = "kurtis";
+    userEmail = "kurtisangell@gmail.com";
+    includes  = [
+      { condition = "gitdir:~/tinker/"; path = "~/tinker/.gitconfig"; }
+      { condition = "gitdir:~/tw/";     path = "~/tw/.gitconfig"; }
+    ];
+  };
+
+  home.file."tinker/.gitconfig".text = ''
+    [user]
+      name  = kurtis
+      email = kurtisangell@gmail.com
+  '';
+
+  home.file."tw/.gitconfig".text = ''
+    [user]
+      name  = kurtis
+      email = kurtis.angell@thoughtworks.com
+  '';
 
   # ── Environment ──────────────────────────────────────────────────────────────
   home.sessionPath = [ "$HOME/.local/bin" ];
@@ -65,10 +87,8 @@
         preexec() { echo -ne '\e[5 q'; }
 
         # ── Completion ────────────────────────────────────────────────────────
-        autoload -U compinit
         zstyle ':completion:*' menu select
         zmodload zsh/complist
-        compinit
         _comp_options+=(globdots) # include hidden files
 
         # ── Options ───────────────────────────────────────────────────────────
