@@ -14,6 +14,7 @@
     jq
     eza
     zsh-powerlevel10k
+    nodejs
   ];
 
   # ── Git ──────────────────────────────────────────────────────────────────────
@@ -23,7 +24,8 @@
     settings.user.email = "kurtisangell@gmail.com";
     includes = [
       { condition = "gitdir:~/tinker/"; path = "~/tinker/.gitconfig"; }
-      { condition = "gitdir:~/tw/";     path = "~/tw/.gitconfig"; }
+      { condition = "gitdir:~/tw/";     path = "~/tw/.gitconfig"; } 
+      { condition = "gitdir:~/hchb/";     path = "~/hchb/.gitconfig"; }
     ];
   };
 
@@ -44,9 +46,18 @@
         email = kurtis.angell@thoughtworks.com
     '';
   };
+  
+  home.file."hchb/.gitconfig" = {
+    force = true;
+    text = ''
+      [user]
+        name  = kurtis
+        email = kangell@hchb.com
+    '';
+  };
 
   # ── Environment ──────────────────────────────────────────────────────────────
-  home.sessionPath = [ "$HOME/.local/bin" ];
+  home.sessionPath = [ "$HOME/.local/bin" "$HOME/.npm-global/bin" "$HOME/.rd/bin" ];
 
   # ── Shell (zsh) ──────────────────────────────────────────────────────────────
   programs.zsh = {
