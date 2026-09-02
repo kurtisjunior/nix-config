@@ -1,4 +1,4 @@
-{ pkgs, lib, config, ... }:
+{ pkgs, lib, config, mermaid-ascii, ... }:
 
 {
   # ── Identity ────────────────────────────────────────────────────────────────
@@ -15,6 +15,7 @@
     eza
     zsh-powerlevel10k
     nodejs
+    mermaid-ascii
   ];
 
   # ── Ghostty ────────────────────────────────────────────────────────────────
@@ -30,7 +31,7 @@
       background-opacity = 0.7;
       background-blur = true;
 
-      # Match the screenshot's typography and spacing.
+      # Typography and spacing.
       font-family = "Hack Nerd Font";
       font-size = 14;
       window-padding-x = 12;
@@ -100,7 +101,14 @@
 
     initContent = lib.mkMerge [
 
-      # p10k instant prompt must source before anything else
+      # direnv's initial environment export must happen before p10k's instant
+      # prompt. Silence routine direnv/nix-direnv status messages.
+      (lib.mkBefore ''
+        export DIRENV_LOG_FORMAT=""
+        (( ''${+commands[direnv]} )) && emulate zsh -c "$(direnv export zsh)"
+      '')
+
+      # p10k instant prompt must source before the remaining initialization
       (lib.mkBefore ''
         if [[ -r "''${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-''${(%):-%n}.zsh" ]]; then
           source "''${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-''${(%):-%n}.zsh"

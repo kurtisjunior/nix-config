@@ -20,6 +20,22 @@
         "type": "github"
       }
     },
+    "mermaid-ascii": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1787169753,
+        "narHash": "sha256-6raTkQ4HbSYihXC//Mo0CCkoablRaCfMqoTAouDtGv8=",
+        "owner": "AlexanderGrooff",
+        "repo": "mermaid-ascii",
+        "rev": "aa31760e14e3bf14b984c650a75aac7181adad37",
+        "type": "github"
+      },
+      "original": {
+        "owner": "AlexanderGrooff",
+        "repo": "mermaid-ascii",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1783279667,
@@ -39,6 +55,7 @@
     "root": {
       "inputs": {
         "home-manager": "home-manager",
+        "mermaid-ascii": "mermaid-ascii",
         "nixpkgs": "nixpkgs"
       }
     }
