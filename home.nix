@@ -27,7 +27,7 @@
 
     settings = {
       # Rose Pine Moon palette, translucent background, and a soft macOS blur.
-      theme = "rose-pine-moon";
+      theme = "Rose Pine Moon";
       background-opacity = 0.7;
       background-blur = true;
 
@@ -47,6 +47,11 @@
 
       shell-integration = "zsh";
       confirm-close-surface = false;
+
+      # Accept trackpad precision-scroll events and allow tmux/TUI apps to
+      # receive mouse input.
+      mouse-scroll-multiplier = "precision:1";
+      mouse-reporting = true;
     };
   };
   # Ensure Home Manager's generated config replaces any existing Ghostty config.
@@ -59,8 +64,10 @@
     settings.user.email = "kurtisangell@gmail.com";
     includes = [
       { condition = "gitdir:~/tinker/"; path = "~/tinker/.gitconfig"; }
-      { condition = "gitdir:~/tw/";     path = "~/tw/.gitconfig"; } 
+      { condition = "gitdir:~/tw/";     path = "~/tw/.gitconfig"; }
       { condition = "gitdir:~/hchb/";     path = "~/hchb/.gitconfig"; }
+      # Listed after ~/tw/ so the narrower scope is applied last.
+      { condition = "gitdir:~/tw/hchb/"; path = "~/tw/hchb/.gitconfig"; }
     ];
   };
 
@@ -88,6 +95,30 @@
       [user]
         name  = kurtis
         email = kangell@hchb.com
+    '';
+  };
+
+  # Identity for ~/tw/hchb/ comes from ~/tw/.gitconfig above; this adds only the
+  # shared ignore file. Git never reads a .gitignore sitting above a repository's
+  # working tree, so core.excludesFile is what makes the file below take effect.
+  home.file."tw/hchb/.gitconfig" = {
+    force = true;
+    text = ''
+      [core]
+        excludesFile = ~/tw/hchb/.gitignore
+    '';
+  };
+
+  # Machine-local tooling stays out of the repositories it operates on: none of
+  # this should need a line in a tracked .gitignore, because no repository
+  # should have to know the tool exists.
+  home.file."tw/hchb/.gitignore" = {
+    force = true;
+    text = ''
+      # Riptide / HumanLayer task artifacts. The task directory is a symlink
+      # into ~/.humanlayer/riptide/artifacts and is cloud-synced, not source.
+      .humanlayer/tasks/
+      .humanlayer/workspace.local.json
     '';
   };
 
