@@ -12,10 +12,17 @@
   home.packages = with pkgs; [
     gh
     jq
+    yq
+    uv
     eza
     zsh-powerlevel10k
     nodejs
+    opencode
+    amp-cli
+    jj
     mermaid-ascii
+    ollama
+    yt-dlp
   ];
 
   # ── Ghostty ────────────────────────────────────────────────────────────────
