@@ -216,6 +216,7 @@
       ls      = "eza --icons=always -a --group-directories-first";
       history = "history 1";
       arsenal = "python ~/projects/arsenalScript/ars.py";
+      millwright = "direnv exec ~/tw/Millwright-MW millwright";
 
       # git
       gst    = "git status";
