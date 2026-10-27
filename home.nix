@@ -137,6 +137,16 @@
     enable        = true;
     defaultKeymap = "viins";
 
+    envExtra = ''
+      if [ -r "$HOME/.agentworks/current-profile" ]; then
+          _agentworks_active=$(cat "$HOME/.agentworks/current-profile" 2>/dev/null)
+          if [ -n "$_agentworks_active" ] && [ -r "$HOME/.agentworks/profiles/$_agentworks_active.env" ]; then
+              . "$HOME/.agentworks/profiles/$_agentworks_active.env"
+          fi
+          unset _agentworks_active
+      fi
+    '';
+
     initContent = lib.mkMerge [
 
       # direnv's initial environment export must happen before p10k's instant
