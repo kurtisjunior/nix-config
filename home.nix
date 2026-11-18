@@ -23,6 +23,7 @@
     mermaid-ascii
     ollama
     yt-dlp
+    google-cloud-sdk
   ];
 
   # ── Ghostty ────────────────────────────────────────────────────────────────
@@ -69,15 +70,32 @@
     enable = true;
     settings.user.name  = "kurtis";
     settings.user.email = "kurtisangell@gmail.com";
+    # Git alone picks the SSH key, via core.sshCommand: personal by default,
+    # overridden per account by the includes below. Remotes are plain
+    # git@github.com:org/repo URLs with no ~/.ssh/config host alias per account.
+    # ~/.ssh/config must not name an IdentityFile for github.com: ssh would
+    # offer it alongside -i, in ssh-agent order, and GitHub signs in as
+    # whichever account's key it sees first.
+    settings.core.sshCommand = "ssh -i ~/.ssh/kurtis-personal -o IdentitiesOnly=yes";
+    # Each include sets the account's commit email and key. Later includes win.
     includes = [
-      { condition = "gitdir:~/tinker/"; path = "~/tinker/.gitconfig"; }
-      { condition = "gitdir:~/tw/";     path = "~/tw/.gitconfig"; }
-      { condition = "gitdir:~/hchb/";     path = "~/hchb/.gitconfig"; }
-      # Listed after ~/tw/ so the narrower scope is applied last.
-      { condition = "gitdir:~/tw/hchb/"; path = "~/tw/hchb/.gitconfig"; }
+      # By directory: applies to repos that already exist under the path.
+      # Narrower paths are listed after the broader ones that contain them.
+      { condition = "gitdir:~/tinker/";   path = "~/tinker/.gitconfig"; }
+      { condition = "gitdir:~/tw/";       path = "~/tw/.gitconfig"; }
+      { condition = "gitdir:~/tw/vylor/"; path = "~/tw/vylor/.gitconfig"; }
+      { condition = "gitdir:~/tw/hchb/";  path = "~/tw/hchb/.gitconfig"; }
+
+      # By remote URL: gitdir: is not evaluated during `git clone`, but
+      # hasconfig: is, so this is what makes a fresh clone use the right key.
+      # Add one line per GitHub org or user the account owns repos under.
+      { condition = "hasconfig:remote.*.url:git@github.com:twlabs/**";   path = "~/tw/.gitconfig"; }
+      { condition = "hasconfig:remote.*.url:git@github.com:kurtistw/**"; path = "~/tw/.gitconfig"; }
     ];
   };
 
+  # The global default is already the personal account; this only pins the
+  # email for ~/tinker/ explicitly.
   home.file."tinker/.gitconfig" = {
     force = true;
     text = ''
@@ -93,16 +111,38 @@
       [user]
         name  = kurtis
         email = kurtis.angell@thoughtworks.com
+      [core]
+        sshCommand = ssh -i ~/.ssh/tw -o IdentitiesOnly=yes
     '';
   };
-  
-  home.file."hchb/.gitconfig" = {
+
+  home.file."tw/vylor/.gitconfig" = {
     force = true;
     text = ''
       [user]
         name  = kurtis
-        email = kangell@hchb.com
+        email = kurtis.angell@vylor.com
+      [core]
+        sshCommand = ssh -i ~/.ssh/vylor -o IdentitiesOnly=yes
     '';
+  };
+
+  # ── SSH ──────────────────────────────────────────────────────────────────────
+  # Deliberately no IdentityFile: git's core.sshCommand passes the one key to
+  # use (see programs.git above), and IdentitiesOnly stops ssh offering any
+  # other key from the agent. Private keys stay in ~/.ssh and are never copied
+  # into the world-readable Nix store.
+  # To test an account by hand: ssh -i ~/.ssh/tw -T git@github.com
+  programs.ssh = {
+    enable = true;
+    enableDefaultConfig = false;
+    settings."github.com" = {
+      HostName       = "github.com";
+      User           = "git";
+      IdentitiesOnly = true;
+      AddKeysToAgent = "yes";
+      UseKeychain    = true; # macOS /usr/bin/ssh only; programs.ssh.package stays null
+    };
   };
 
   # Identity for ~/tw/hchb/ comes from ~/tw/.gitconfig above; this adds only the
