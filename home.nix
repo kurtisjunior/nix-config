@@ -67,7 +67,7 @@
 
   # ── Git ──────────────────────────────────────────────────────────────────────
   programs.git = let
-    vylorDevops = {
+    vylor = {
       user.email = "kurtis.angell@vylor.com";
       core.sshCommand = "ssh -i ~/.ssh/vylor-devops -o IdentitiesOnly=yes";
     };
@@ -88,7 +88,6 @@
       # Narrower paths are listed after the broader ones that contain them.
       { condition = "gitdir:~/tinker/";   path = "~/tinker/.gitconfig"; }
       { condition = "gitdir:~/tw/";       path = "~/tw/.gitconfig"; }
-      { condition = "gitdir:~/tw/vylor/"; path = "~/tw/vylor/.gitconfig"; }
       { condition = "gitdir:~/tw/hchb/";  path = "~/tw/hchb/.gitconfig"; }
 
       # By remote URL: gitdir: is not evaluated during `git clone`, but
@@ -97,11 +96,11 @@
       { condition = "hasconfig:remote.*.url:git@github.com:twlabs/**";   path = "~/tw/.gitconfig"; }
       { condition = "hasconfig:remote.*.url:git@github.com:kurtistw/**"; path = "~/tw/.gitconfig"; }
 
-      # Azure DevOps (Vylor), which accepts only RSA keys, hence a separate key
-      # from vylor. By directory for repos in ~/tw/vylor-devops/, and by URL so
-      # a fresh clone (or an Azure remote elsewhere) also gets it.
-    ] ++ map (condition: { inherit condition; contents = vylorDevops; }) [
-      "gitdir:~/tw/vylor-devops/"
+      # Vylor (Azure DevOps, which accepts only RSA keys). By directory for repos
+      # in ~/tw/vylor/, and by URL so a fresh clone (or an Azure remote
+      # elsewhere) also gets it. Appended last so it wins over ~/tw/.
+    ] ++ map (condition: { inherit condition; contents = vylor; }) [
+      "gitdir:~/tw/vylor/"
       "hasconfig:remote.*.url:git@ssh.dev.azure.com:v3/**"
     ];
   };
@@ -125,17 +124,6 @@
         email = kurtis.angell@thoughtworks.com
       [core]
         sshCommand = ssh -i ~/.ssh/tw -o IdentitiesOnly=yes
-    '';
-  };
-
-  home.file."tw/vylor/.gitconfig" = {
-    force = true;
-    text = ''
-      [user]
-        name  = kurtis
-        email = kurtis.angell@vylor.com
-      [core]
-        sshCommand = ssh -i ~/.ssh/vylor -o IdentitiesOnly=yes
     '';
   };
 
