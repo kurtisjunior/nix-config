@@ -66,7 +66,12 @@
   xdg.configFile."ghostty/config".force = true;
 
   # ── Git ──────────────────────────────────────────────────────────────────────
-  programs.git = {
+  programs.git = let
+    vylorDevops = {
+      user.email = "kurtis.angell@vylor.com";
+      core.sshCommand = "ssh -i ~/.ssh/vylor-devops -o IdentitiesOnly=yes";
+    };
+  in {
     enable = true;
     settings.user.name  = "kurtis";
     settings.user.email = "kurtisangell@gmail.com";
@@ -91,6 +96,13 @@
       # Add one line per GitHub org or user the account owns repos under.
       { condition = "hasconfig:remote.*.url:git@github.com:twlabs/**";   path = "~/tw/.gitconfig"; }
       { condition = "hasconfig:remote.*.url:git@github.com:kurtistw/**"; path = "~/tw/.gitconfig"; }
+
+      # Azure DevOps (Vylor), which accepts only RSA keys, hence a separate key
+      # from vylor. By directory for repos in ~/tw/vylor-devops/, and by URL so
+      # a fresh clone (or an Azure remote elsewhere) also gets it.
+    ] ++ map (condition: { inherit condition; contents = vylorDevops; }) [
+      "gitdir:~/tw/vylor-devops/"
+      "hasconfig:remote.*.url:git@ssh.dev.azure.com:v3/**"
     ];
   };
 
@@ -142,6 +154,12 @@
       IdentitiesOnly = true;
       AddKeysToAgent = "yes";
       UseKeychain    = true; # macOS /usr/bin/ssh only; programs.ssh.package stays null
+    };
+    settings."ssh.dev.azure.com" = {
+      User           = "git";
+      IdentitiesOnly = true;
+      AddKeysToAgent = "yes";
+      UseKeychain    = true;
     };
   };
 
